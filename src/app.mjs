@@ -2,22 +2,25 @@ import express, { text } from 'express';
 import MflixService from './service/MflixService.mjs'
 import asyncHandler from 'express-async-handler';
 import Joi from 'joi';
+import validate from './middleware/validation.mjs'
 const app = express();
 const port = process.env.PORT || 3500;
 const mflixService = new MflixService(process.env.MONGO_URI, process.env.DB_NAME,
     process.env.MOVIES_COLLECTION, process.env.COMMENTS_COLLECTION)
 const server = app.listen(port);
 server.on("listening", ()=>console.log(`server listening on port ${server.address().port}`));
+const schemaComentUpdate = Joi.object({
+    commentId:Joi.string().hex().length(24).required(),
+    text:Joi.string().required()
+})
 app.use(express.json());
+app.use(validate(schemaComentUpdate))
 function errorHandler(error,req,res,next){
     const status = error.code || 500;
    const text = error.text || "Unknown server error " + error;
    res.status(status).end(text);
 }
-const schemaComentUpdate = Joi.object({
-    commentId:Joi.string().hex().length(24).required(),
-    text:Joi.string().required()
-})
+
 
 app.post("/mflix/comments", asyncHandler(async (req, res) => {
     const commentDB = await mflixService.addComment(req.body);

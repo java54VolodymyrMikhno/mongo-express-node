@@ -1,13 +1,11 @@
 import Joi from "joi"
 
- export const schemas = {
+export const schemas = {
     '/mflix/comments': {
         PUT: Joi.object({
             commentId: Joi.string().hex().length(24).required(),
             text: Joi.string().required()
-        })
-    },
-    '/mflix/comments': {
+        }),
         POST: Joi.object({
             email: Joi.string().email().required(),
             movie_id: Joi.string().hex().length(24).required(),
@@ -24,12 +22,14 @@ import Joi from "joi"
     }
 };
 
+
 export default function validation(schemas) {
     return (req, res, next) => {
         const schema = schemas[req.path]?.[req.method];
         if (schema) {
             const { error } = schema.validate(req.body);
             if (error) {
+                console.log(error.details); 
                req.validated = false;
                 req.error_message = error.details[0].message;
             }else{
@@ -39,5 +39,6 @@ export default function validation(schemas) {
         } 
         next();
     };
+   
 }
 

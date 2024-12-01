@@ -4,7 +4,6 @@ export default function validation(schemas) {
         const schema = schemas[req.path]?.[req.method];
         if (schema) {
             const { error } = schema.validate(req.body);
-            req.validated = !error;
             if (error) {
                 req.error_message = error.details[0].message;
             }

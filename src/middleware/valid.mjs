@@ -4,10 +4,10 @@ import { getError } from "../errors/error.mjs";
 
 export default function valid() {
     return (req, res, next) => {
-        if (!req.validated || req.error_message) {
+        if (req.error_message) {
             throw getError(
                 400, 
-                req.error_message || 'Unknown validation error'
+                req.error_message 
             );
         }
         next();

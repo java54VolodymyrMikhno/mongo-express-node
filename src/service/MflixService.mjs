@@ -23,6 +23,7 @@ export default class MflixService {
         return commentDB;
     }
     async updateCommentText({ text, commentId }) {
+         await this.getComment(commentId)
         const commentUpdated = await this.#commentsCollection.findOneAndUpdate(
             { _id: ObjectId.createFromHexString(commentId) },
             { $set: { text } },

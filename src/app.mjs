@@ -1,9 +1,10 @@
 import express from 'express';
 import MflixService from './service/MflixService.mjs'
 import asyncHandler from 'express-async-handler';
-import validate, { schemas } from './middleware/validation.mjs'
+import validate from './middleware/validation.mjs'
 import {getError} from './errors/error.mjs'
 import valid from './middleware/valid.mjs';
+import { schemas } from './schemas/schemas.mjs';
 const app = express();
 const port = process.env.PORT || 3500;
 const mflixService = new MflixService(process.env.MONGO_URI, process.env.DB_NAME,

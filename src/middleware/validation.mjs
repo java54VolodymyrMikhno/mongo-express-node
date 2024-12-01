@@ -1,27 +1,18 @@
 import Joi from "joi"
 
-const schemas = {
+ export const schemas = {
     '/mflix/comments': {
         PUT: Joi.object({
             commentId: Joi.string().hex().length(24).required(),
             text: Joi.string().required()
-        }),
+        })
+    },
+    '/mflix/comments': {
         POST: Joi.object({
+            email: Joi.string().email().required(),
             movie_id: Joi.string().hex().length(24).required(),
-            text: Joi.string().required(),
-            name: Joi.string().required(),
-            email: Joi.string().email().required()
-        }),
-        DELETE: {
-            params: Joi.object({
-                id: Joi.string().hex().length(24).required()
-            })
-        },
-        GET: {
-            params: Joi.object({
-                id: Joi.string().hex().length(24).required()
-            })
-        }
+            text: Joi.string().required()
+        })
     },
     '/mflix/movies/rated': {
         POST: Joi.object({
@@ -33,17 +24,20 @@ const schemas = {
     }
 };
 
-export default function validation(schema){
-    return(req,res,next)=>{
+export default function validation(schemas) {
+    return (req, res, next) => {
         const schema = schemas[req.path]?.[req.method];
-       if(schema){
-        const{error}=schema.validate(req.body);
-        req.validated = true;
-        if(error){
-            req.error_message=error.details[0].message;
-        }
-       }
-       next()
-    }
-    
+        if (schema) {
+            const { error } = schema.validate(req.body);
+            if (error) {
+               req.validated = false;
+                req.error_message = error.details[0].message;
+            }else{
+                req.validated = true;
+            }
+           
+        } 
+        next();
+    };
 }
+

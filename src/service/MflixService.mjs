@@ -1,3 +1,5 @@
+
+import { getError } from '../errors/error.mjs'
 import MongoConnection from '../mongo/MongoConnection.mjs'
 import { ObjectId } from 'mongodb'
 export default class MflixService {
@@ -25,27 +27,30 @@ export default class MflixService {
             { _id: ObjectId.createFromHexString(commentId) },
             { $set: { text } },
             { returnNewDocument: true });
+           
         return commentUpdated;
     }
     async deleteComment(id) {
         const toDeleteComment = await this.getComment(id)
-        if(!toDeleteComment){
-            throw { code:404,text:"not comment found"}
-        }
-        await this.#commentsCollection.deleteOne({"_id":toDeleteComment._id});
+        await this.#commentsCollection.deleteOne({ "_id": toDeleteComment._id });
         return toDeleteComment;
     }
     async getComment(id) {
         const mongoId = ObjectId.createFromHexString(id);
-        const comment = await this.#commentsCollection.findOne({"_id":mongoId});
+        const comment = await this.#commentsCollection.findOne({ "_id": mongoId });
+         if (!comment) {
+            throw getError ( 404, `Comment with id ${id} not found` )
+        }
         return comment;
     }
-    async getMostRatedMovies({genre, acter, year, amount}) {
-        const filter = {...year && {year}, ...acter &&{cast: {'$regex':acter}},
-         ...genre && {genres:genre}, 'imdb.rating':{'$ne':''}}
-         const result = await this.#moviesCollection.find(filter)
-         .sort({'imdb.rating':-1}).limit(amount).toArray();
-         return result;
+    async getMostRatedMovies({ genre, acter, year, amount }) {
+        const filter = {
+            ...year && { year }, ...acter && { cast: { '$regex': acter } },
+            ...genre && { genres: genre }, 'imdb.rating': { '$ne': '' }
+        }
+        const result = await this.#moviesCollection.find(filter)
+            .sort({ 'imdb.rating': -1 }).limit(amount).toArray();
+        return result;
     }
     #toComment(commentDto) {
         const movieId = ObjectId.createFromHexString(commentDto.movie_id);

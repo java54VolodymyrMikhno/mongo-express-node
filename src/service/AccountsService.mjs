@@ -18,18 +18,15 @@ export default class AccountsService {
 
     }
 async getAccount(username) {
-    await this.#checkAccountExists(username);
+    const accountDB = await this.#checkAccountExists(username);
     const account = {};
     account.username = accountDB._id;
     account.email = accountDB.email;
     return account;
 }
 async updatePassword(account) {
-    const accountDB = await this.#accounts.findOne({_id:account.username});
-    if(!accountDB) {
-        throw getError(404, `account for ${account.username} not found`);
-    }
-    if(!bcrypt.compareSync(account.password, accountDB.hashPassword)) {
+    const accountDB = await this.#checkAccountExists(account.username);
+    if(!bcrypt.compareSync(account.oldPassword, accountDB.hashPassword)) {
         throw getError(400, `password for ${account.username} is incorrect`);
     }
     const result = await this.#accounts.updateOne({_id:account.username}, {$set:{hashPassword:bcrypt.hashSync(account.newPassword, 10)}});

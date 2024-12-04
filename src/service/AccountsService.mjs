@@ -9,10 +9,7 @@ export default class AccountsService {
         this.#accounts = this.#connection.getCollection('accounts');
     }
     async insertAccount(account) {
-        const accountDB = await this.#accounts.findOne({_id:account.username});
-        if(accountDB) {
-            throw getError(400, `account for ${account.username} already exists`);
-        }
+        await this.#checkAccountExists(account.username, false);
         const toInsertAccount = this.#toAccountDB(account);
         const result = await this.#accounts.insertOne(toInsertAccount);
         if (result.insertedId == account.username) {
@@ -21,10 +18,7 @@ export default class AccountsService {
 
     }
 async getAccount(username) {
-    const accountDB = await this.#accounts.findOne({_id:username});
-    if(!accountDB) {
-        throw getError(404, `account for ${username} not found`);
-    }
+    await this.#checkAccountExists(username);
     const account = {};
     account.username = accountDB._id;
     account.email = accountDB.email;
@@ -45,7 +39,7 @@ async updatePassword(account) {
     return {message:`password for ${account.username} updated`};
 }
 async deleteAccount(username) {
-    this.getAccount(username);
+    await this.#checkAccountExists(username);
     const result = await this.#accounts.deleteOne({_id:username});
     if(result.deletedCount == 0) {
         throw getError(500, `account for ${username} not deleted`);
@@ -60,4 +54,18 @@ async deleteAccount(username) {
         accountDB.hashPassword = bcrypt.hashSync(account.password, 10);
         return accountDB;
     }
+    async #checkAccountExists(username, shouldExist = true) {
+        const accountDB = await this.#accounts.findOne({ _id: username });
+        
+        if (shouldExist && !accountDB) {
+            throw getError(404, `Account for ${username} not found`);
+        }
+        
+        if (!shouldExist && accountDB) {
+            throw getError(400, `Account for ${username} already exists`);
+        }
+        
+        return accountDB;
+    }
+
 }

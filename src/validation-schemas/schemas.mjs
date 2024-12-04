@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ADD_ACCOUNT, ADD_UPDATE_COMMENT, DELETE_GET_COMMENT, GET_MOVIES_RATED } from "../config/pathes.mjs";
+import { ADD_ACCOUNT, ADD_UPDATE_COMMENT, DELETE_GET_COMMENT, GET_MOVIES_RATED,UPDATE_PASSWORD,GET_DELETE_ACCOUNT } from "../config/pathes.mjs";
 export const schemaObjectId = Joi.string().hex().length(24).required();
 export const schemaCommentUpdate = Joi.object({
     commentId: schemaObjectId,
@@ -27,6 +27,11 @@ export const schemaCommentUpdate = Joi.object({
         password: Joi.string().min(8).required()
     }
  )
+ export const schemaUpdatePassword = Joi.object({
+    username: Joi.string().min(4).required(),
+    oldPassword: Joi.string().required(),
+    newPassword: Joi.string().min(8).required()
+});
  export const schemaParams = Joi.object({
     id:schemaObjectId
  })
@@ -41,6 +46,10 @@ export const schemaCommentUpdate = Joi.object({
     },
     [ADD_ACCOUNT]: {
         POST: schemaAddAccount
+    }
+    ,
+    [UPDATE_PASSWORD]: {
+        PUT: schemaUpdatePassword
     }
     
   }

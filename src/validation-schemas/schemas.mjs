@@ -50,6 +50,9 @@ export const schemaCommentUpdate = Joi.object({
     ,
     [UPDATE_PASSWORD]: {
         PUT: schemaUpdatePassword
+    },
+    [GET_DELETE_ACCOUNT]: {
+        DELETE: schemaParams
     }
     
   }

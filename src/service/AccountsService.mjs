@@ -20,6 +20,39 @@ export default class AccountsService {
         }
 
     }
+async getAccount(username) {
+    const accountDB = await this.#accounts.findOne({_id:username});
+    if(!accountDB) {
+        throw getError(404, `account for ${username} not found`);
+    }
+    const account = {};
+    account.username = accountDB._id;
+    account.email = accountDB.email;
+    return account;
+}
+async updatePassword(account) {
+    const accountDB = await this.#accounts.findOne({_id:account.username});
+    if(!accountDB) {
+        throw getError(404, `account for ${account.username} not found`);
+    }
+    if(!bcrypt.compareSync(account.password, accountDB.hashPassword)) {
+        throw getError(400, `password for ${account.username} is incorrect`);
+    }
+    const result = await this.#accounts.updateOne({_id:account.username}, {$set:{hashPassword:bcrypt.hashSync(account.newPassword, 10)}});
+    if(result.modifiedCount == 0) {
+        throw getError(500, `password for ${account.username} not updated`);
+    }
+    return {message:`password for ${account.username} updated`};
+}
+async deleteAccount(username) {
+    this.getAccount(username);
+    const result = await this.#accounts.deleteOne({_id:username});
+    if(result.deletedCount == 0) {
+        throw getError(500, `account for ${username} not deleted`);
+    }
+    return {message:`account for ${username} deleted`};
+}
+
     #toAccountDB(account) {
         const accountDB = {};
         accountDB._id = account.username;

@@ -47,31 +47,3 @@ async function basicAuth(authHeader, req, accountingService) {
         throw getError(401, error.message || "Authentication failed");
     }
 }
-const handleUserRequest = (username, userRequests, USER_LIMIT, USER_TIME_WINDOW) => {
-    const currentTime = Date.now();
-    const requestTimes = userRequests.get(username) || [];
-    const filteredTimes = requestTimes.filter(time => time > currentTime - USER_TIME_WINDOW * 1000);
-    filteredTimes.push(currentTime);
-    userRequests.set(username, filteredTimes);
-
-    if (filteredTimes.length > USER_LIMIT) {
-        throw getError(429, "Too many requests");
-    }
-};
-export function rateLimit() {
-    const userRequests = new Map();
-
-    return (req, res, next) => {
-        const { role, user: username } = req;
-        const { USER_LIMIT, USER_TIME_WINDOW } = process.env;
-
-        if (role === "ADMIN") {
-            throw getError(403, "");
-        } else if (role === "USER") {
-            handleUserRequest(username, userRequests, USER_LIMIT, USER_TIME_WINDOW);
-        } else {
-            next()
-        }
-        next();
-    };
-}

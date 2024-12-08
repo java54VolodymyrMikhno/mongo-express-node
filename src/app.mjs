@@ -5,8 +5,9 @@ import { accounts_route } from './routes/accounts.mjs';
 import { errorHandler } from './errors/error.mjs';
 import schemas  from './validation-schemas/schemas.mjs';
 import AccountsService from './service/AccountsService.mjs';
-import { authenticate, auth, rateLimit } from './middleware/authentication.mjs';
+import { authenticate, auth } from './middleware/authentication.mjs';
 import { ADD_UPDATE_ACCOUNT } from './config/pathes.mjs';
+import { rateLimit } from './middleware/limitation.mjs';
 
 const app = express();
 const port = process.env.PORT || 3500;

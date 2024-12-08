@@ -65,7 +65,7 @@ export function rateLimit() {
             userRequests.set(username, filteredTimes);
 
             if (filteredTimes.length > USER_LIMIT) {
-                return next(getError(429, "Too many requests"));
+                throw getError(429, "Too many requests");
             }
         }
         next();

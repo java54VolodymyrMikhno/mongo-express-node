@@ -59,7 +59,7 @@ const handleUserRequest = (username, userRequests, USER_LIMIT, USER_TIME_WINDOW)
     }
 };
 export function rateLimit() {
-    const userRequests = new Map(); 
+    const userRequests = new Map();
 
     return (req, res, next) => {
         const { role, user: username } = req;
@@ -69,8 +69,8 @@ export function rateLimit() {
             throw getError(403, "");
         } else if (role === "USER") {
             handleUserRequest(username, userRequests, USER_LIMIT, USER_TIME_WINDOW);
+        } else {
+            next()
         }
-
-        next();
     };
 }

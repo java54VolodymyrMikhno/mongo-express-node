@@ -5,31 +5,25 @@ const BASIC = "Basic ";
 
 export function authenticate(accountingService) {
     return async (req, res, next) => {
-        const authHeader = req.header("Authorization");
-        try {
-            if (authHeader && authHeader.startsWith(BASIC)) {
-                await basicAuth(authHeader, req, accountingService);
+        const authHeader = req.header("Authorization")
+        if (authHeader) {
+            if (authHeader.startsWith(BASIC)) {
+                await basicAuth(authHeader, req, accountingService)
             }
-            next();
-        } catch (error) {
-            next(error);
         }
-    };
+        next();
+    }
 }
 
 export function auth(...skipRoutes) {
     return (req, res, next) => {
-        try {
-            if (!skipRoutes.includes(JSON.stringify({ path: req.path, method: req.method }))) {
-                if (!req.user) {
-                    throw getError(401, "Unauthorized");
-                }
+        if (!skipRoutes.includes(JSON.stringify({ path: req.path, method: req.method }))) {
+            if (!req.user) {
+                throw getError(401, "");
             }
-            next();
-        } catch (error) {
-            next(error);
         }
-    };
+        next();
+    }
 }
 
 async function basicAuth(authHeader, req, accountingService) {

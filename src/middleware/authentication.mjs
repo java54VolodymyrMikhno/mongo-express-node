@@ -72,5 +72,6 @@ export function rateLimit() {
         } else {
             next()
         }
+        next();
     };
 }

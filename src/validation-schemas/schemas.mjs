@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ACCOUNTS_ACCOUNT_ROLE, ADD_UPDATE_ACCOUNT, ADD_UPDATE_COMMENT, GET_MOVIES_RATED } from "../config/pathes.mjs";
+import { ACCOUNTS_ACCOUNT_SCHEMA, ADD_UPDATE_ACCOUNT, ADD_UPDATE_COMMENT, GET_MOVIES_RATED } from "../config/pathes.mjs";
  const schemaObjectId = Joi.string().hex().length(24).required();
  const schemaCommentUpdate = Joi.object({
     commentId: schemaObjectId,
@@ -34,10 +34,9 @@ import { ACCOUNTS_ACCOUNT_ROLE, ADD_UPDATE_ACCOUNT, ADD_UPDATE_COMMENT, GET_MOVI
     username: Joi.string().min(4).required(),
     newPassword: Joi.string().min(8).required()
  });
-
- const schemaSetRoleRequest = Joi.object({
+ const schemaRole = Joi.object({
     username: Joi.string().min(4).required(),
-    role: Joi.string().valid("ADMIN","PREMIUM_USER", "USER").required()
+    role: Joi.string().valid("USER", "ADMIN","PREMIUM_USER").required()
  });
   const schemas = {
    [ ADD_UPDATE_COMMENT]: {
@@ -52,10 +51,8 @@ import { ACCOUNTS_ACCOUNT_ROLE, ADD_UPDATE_ACCOUNT, ADD_UPDATE_COMMENT, GET_MOVI
         POST: schemaAddAccount,
         PUT: schemaUpdatePassword
     },
-    [ACCOUNTS_ACCOUNT_ROLE]: {
-        PUT:schemaSetRoleRequest
-    }
-
-    
+    [ACCOUNTS_ACCOUNT_SCHEMA]:{
+        PUT: schemaRole
+    }    
   }
   export default schemas;

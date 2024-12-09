@@ -7,7 +7,8 @@ import schemas  from './validation-schemas/schemas.mjs';
 import AccountsService from './service/AccountsService.mjs';
 import { authenticate, auth } from './middleware/authentication.mjs';
 import { ADD_UPDATE_ACCOUNT } from './config/pathes.mjs';
-import { rateLimit } from './middleware/limitation.mjs';
+import { limitRate } from './middleware/limitation.mjs';
+
 
 const app = express();
 const port = process.env.PORT || 3500;
@@ -20,6 +21,6 @@ app.use(authenticate(accountsService));
 app.use(auth(JSON.stringify({path:ADD_UPDATE_ACCOUNT, method:"POST"})))
 app.use(validateBody(schemas));
 app.use(valid);
-app.use('/mflix',rateLimit(),mflix_route);
+app.use('/mflix',limitRate(),mflix_route);
 app.use('/accounts', accounts_route);
 app.use(errorHandler);

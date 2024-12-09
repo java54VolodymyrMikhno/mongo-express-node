@@ -42,8 +42,7 @@ export default class AccountsService {
         await this.#accounts.deleteOne({ _id: username });
         return account;
     }
-   
-    async setRole({username, role}) {
+    async updateRole({ username, role }) {
         const account = await this.#accounts.findOneAndUpdate(
             { _id: username },
             { $set: { role: role } },
@@ -58,7 +57,7 @@ export default class AccountsService {
         accountDB._id = account.username;
         accountDB.email = account.email;
         accountDB.hashPassword = bcrypt.hashSync(account.password, 10);
-        accountDB.role = account.role || 'USER';
+        accountDB.role = account.role ||"USER";
         return accountDB;
     }
 }

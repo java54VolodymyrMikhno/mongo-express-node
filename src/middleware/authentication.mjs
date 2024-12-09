@@ -30,20 +30,19 @@ async function basicAuth(authHeader, req, accountingService) {
     const userPasswordBase64 = authHeader.substring(BASIC.length);
     const userPasswordAscii = Buffer.from(userPasswordBase64, 'base64').toString("ascii");
     const [username, password] = userPasswordAscii.split(":");
+    const { SET_ROLE_USERNAME, SET_ROLE_PASSWORD } = process.env;
+    if (SET_ROLE_USERNAME == username && SET_ROLE_PASSWORD == password) {
+        req.user = username;
+        req.role = "ADMIN";
+    } else {
+        try {
+            const account = await accountingService.getAccount(username);
+            if (account && await bcrypt.compare(password, account.hashPassword)) {
+                req.user = account._id;
+                req.role = account.role || "USER";
+            }
+        } catch (error) {
 
-    try {
-        const { SET_ROLE_USERNAME, SET_ROLE_PASSWORD } = process.env;
-        const account = await accountingService.getAccount(username);
-        if (username === SET_ROLE_USERNAME && password === SET_ROLE_PASSWORD) {
-            req.user = SET_ROLE_USERNAME;
-            req.role = 'ADMIN';
-        } else if (account && await bcrypt.compare(password, account.hashPassword)) {
-            req.user = account._id;
-            req.role = account.role || 'USER';
-        } else {
-            throw getError(401, "Invalid username or password");
         }
-    } catch (error) {
-        throw getError(401, error.message || "Authentication failed");
     }
 }

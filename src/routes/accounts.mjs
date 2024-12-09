@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ACCOUNTS_ACCOUNT,  DELETE_GET_ACCOUNT, SET_ROLE_ACCOUNT } from '../config/pathes.mjs';
+import { ACCOUNTS_ACCOUNT, ACCOUNTS_ACCOUNT_ROLE, DELETE_GET_ACCOUNT } from '../config/pathes.mjs';
 import { accountsService } from '../app.mjs';
 import { getError } from '../errors/error.mjs';
 export const accounts_route = express.Router();
@@ -26,12 +26,10 @@ accounts_route.delete(DELETE_GET_ACCOUNT, asyncHandler(async (req, res) => {
     const account = await accountsService.deleteAccount(req.params.username);
    res.status(200).json(account);
 }))
-
-accounts_route.put(SET_ROLE_ACCOUNT, asyncHandler(async (req, res) => {  
-    
+accounts_route.put(ACCOUNTS_ACCOUNT_ROLE, asyncHandler(async (req, res) => {
     if(req.role != "ADMIN") {
         throw getError(403, "");
     }
-    const account = await accountsService.setRole(req.body);
+    const account = await accountsService.updateRole(req.body);
    res.status(200).json(account);
 }))

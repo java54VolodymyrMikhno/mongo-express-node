@@ -5,7 +5,7 @@ export function authenticate(accountingService) {
     return async (req, res, next) => {
         const authHeader = req.header("Authorization")
         if (authHeader) {
-            if(authHeader.startsWith(BASIC)) {
+            if (authHeader.startsWith(BASIC)) {
                 await basicAuth(authHeader, req, accountingService)
             }
         }
@@ -13,31 +13,33 @@ export function authenticate(accountingService) {
     }
 }
 export function auth(...skipRoutes) {
-   return (req, res, next) => {
-    if(!skipRoutes.includes(JSON.stringify({path:req.path, method: req.method})) ) {
-        if (!req.user) {
-            throw getError(401, "");
-        }
+    return (req, res, next) => {
+        if (!skipRoutes.includes(JSON.stringify({ path: req.path, method: req.method }))) {
+            if (!req.user) {
+                throw getError(401, "");
+            }
 
+        }
+        next();
     }
-    next();
-   }
 }
 async function basicAuth(authHeader, req, accountingService) {
     const userPasswordBase64 = authHeader.substring(BASIC.length);
     const userPasswordAscii = Buffer.from(userPasswordBase64, 'base64').toString("ascii");
-    const userPasswordTokens = userPasswordAscii.split(":");
-    try {
-        const account = await accountingService.getAccount(userPasswordTokens[0]);
-        if (account) {
-            if (await bcrypt.compare(userPasswordTokens[1], account.hashPassword)) {
+    const [username, password] = userPasswordAscii.split(":");
+    const { SET_ROLE_USERNAME, SET_ROLE_PASSWORD } = process.env;
+    if (SET_ROLE_USERNAME == username && SET_ROLE_PASSWORD == password) {
+        req.user = username;
+        req.role = "ADMIN";
+    } else {
+        try {
+            const account = await accountingService.getAccount(username);
+            if (account && await bcrypt.compare(password, account.hashPassword)) {
                 req.user = account._id;
-                req.role = account.role || 'USER';
+                req.role = account.role || "USER";
             }
+        } catch (error) {
+
         }
-    } catch (error) {
-        
     }
-
-
 }

@@ -53,7 +53,6 @@ import { ACCOUNTS_ACCOUNT_SCHEMA, ADD_UPDATE_ACCOUNT, ADD_UPDATE_COMMENT, GET_MO
     },
     [ACCOUNTS_ACCOUNT_SCHEMA]:{
         PUT: schemaRole
-    }
-    
+    }    
   }
   export default schemas;
